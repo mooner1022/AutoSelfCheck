@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/general_header">
+
+        <SwitchPreferenceCompat
+            app:key="general_onoff"
+            app:title="@string/general_power_title"
+            app:defaultValue="true"
+            app:summaryOff="@string/general_power_summary_off"
+            app:summaryOn="@string/general_power_summary_on" />
+
+        <Preference
+            app:dependency="general_onoff"
+            app:title="시간 재설정"
+            app:key="change_time"
+            app:summary="자가진단 시간을 재설정합니다" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="위험">
+
+        <Preference
+            app:title="데이터 초기화"
+            app:key="clear_data"
+            app:summary="모든 데이터를 초기화하고 앱을 재시작합니다" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
