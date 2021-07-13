@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
+            ForegroundTask.isRunning = true
         }
 
         binding.viewPager.adapter = ViewPagerAdapter(this)

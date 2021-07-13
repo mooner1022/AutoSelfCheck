@@ -26,15 +26,25 @@ object AutoCheckTaskManager {
     private lateinit var alarmManager: AlarmManager
     private const val TAG = "AutoCheckTaskManager"
 
+    private fun getIntent(context: Context): Intent {
+        return Intent(context, AlarmBroadcastReceiver::class.java).apply {
+            action = Const.ALARM_ACTION
+        }
+    }
+
     fun setAlarm(context: Context, hour: Int, minute: Int, force: Boolean = false) {
         val time = Calendar.getInstance().apply {
-            if (get(Calendar.DAY_OF_WEEK).isWeekdays()) {
-                add(Calendar.DATE, 1)
+            if (get(Calendar.DAY_OF_WEEK + 1).isWeekdays()) {
+                if (get(Calendar.HOUR_OF_DAY) >= hour && get(Calendar.MINUTE) >= minute) {
+                    add(Calendar.DATE, 1)
+                    println("next day")
+                }
             } else {
                 add(Calendar.DATE, 3)
             }
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
         }
         Session.nextAlarmTime = time.timeInMillis
 
@@ -45,7 +55,7 @@ object AutoCheckTaskManager {
             }
         }
 
-        val intent = Intent(Const.ALARM_ACTION)
+        val intent = getIntent(context)
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
@@ -55,7 +65,7 @@ object AutoCheckTaskManager {
     fun isAlarmSet(context: Context): Boolean {
         return PendingIntent.getBroadcast(
             context, 0,
-            Intent(Const.ALARM_ACTION),
+            getIntent(context),
             PendingIntent.FLAG_NO_CREATE
         ) != null
     }
@@ -64,7 +74,7 @@ object AutoCheckTaskManager {
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = PendingIntent.getBroadcast(
             context, 0,
-            Intent(Const.ALARM_ACTION),
+            getIntent(context),
             PendingIntent.FLAG_NO_CREATE
         )
         alarmManager.cancel(pendingIntent)
@@ -79,16 +89,16 @@ object AutoCheckTaskManager {
         val calendar = Calendar.getInstance()
         val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationCompat.Builder(context, CHANNEL_ID)
-                .setContentTitle("자가진단 완료!")
-                .setSubText("${calendar.get(Calendar.HOUR_OF_DAY)}시 ${calendar.get(Calendar.MINUTE)}분에 자동으로 자가진단을 완료했어요!")
+                .setSubText("자가진단 완료!")
+                .setContentTitle("${calendar.get(Calendar.HOUR_OF_DAY)}시 ${calendar.get(Calendar.MINUTE)}분에 자동으로 자가진단을 완료했어요!")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setShowWhen(false)
                 .build()
         } else {
             NotificationCompat.Builder(context)
-                .setContentTitle("자가진단 완료!")
-                .setSubText("${calendar.get(Calendar.HOUR_OF_DAY)}시 ${calendar.get(Calendar.MINUTE)}분에 자동으로 자가진단을 완료했어요!")
+                .setSubText("자가진단 완료!")
+                .setContentTitle("${calendar.get(Calendar.HOUR_OF_DAY)}시 ${calendar.get(Calendar.MINUTE)}분에 자동으로 자가진단을 완료했어요!")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setShowWhen(false)

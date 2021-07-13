@@ -96,9 +96,12 @@ class HomeFragment : Fragment() {
         removeUpdateTimer()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onResume() {
         super.onResume()
         setUpdateTimer()
+        val config: Config = serializer.get()!!.decodeFromString(pref.getString("config", "")!!)
+        binding.time.text = "${config.hour}시 ${config.minute}분"
     }
 
     private fun setUpdateTimer() {
